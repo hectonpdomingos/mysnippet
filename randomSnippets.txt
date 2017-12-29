@@ -311,3 +311,67 @@ System.out.println(s);
                 }
 				
 #############################################
+
+In canse you commited a mistake type a command 
+ex:
+mkdir mispel
+rmdir !$
+
+Adding a l in the end of the command
+mkdir !$l
+
+ls -l 
+mispell
+
+
+-
+df -hT /boot
+
+to check the space of current directory
+df -h .
+-------
+
+to execute all the previous command
+!*
+
+shotcuts to the last programm
+!u
+!w 
+
+to execute the last comand with su 
+su -c "!!"
+
+to run the last command using the first letters of the command
+!d
+!du
+!df
+
+----------
+netstat -nutlp
+
+---
+
+in case you are using a normal user and type a comand that requires privileges and you didn't use
+sudo, you will see a error permission.
+
+just type   
+
+sudo !!
+
+this will run the last command with sudo.
+
+-------
+
+to show the content of the last file you modified
+
+cat !$
+
+----
+
+ps -ef | grep gluster
+
+----
+
+
+
+
