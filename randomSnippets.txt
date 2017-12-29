@@ -240,3 +240,74 @@ startActivity(Intent.createChooser(sharingIntent, "Share via"));
 
 ##########################################################
 
+#############################################
+//Obter a data/hora atual
+
+Date d = new Date();
+System.out.println(d.toString());
+
+//Somar 7 dias à data atual
+
+Calendar c = Calendar.getInstance();
+c.add(Calendar.DAY_OF_MONTH, 7);
+Date d = c.getTime();
+System.out.println(d.toString());
+
+
+############################################
+//Formatação da data atual no padrão curto
+
+Date d = new Date();
+DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
+String s = df.format(d);
+System.out.println(s);
+
+#######################################
+//Formatação da data padrao longo
+//de acordo com a lcalidade
+
+Date d = new Date();
+Locale l = new Locale("fr", "FR");
+DateFormat df = DateFormat.getDateInstance(DateFormat.LONG, 1);
+String s = df.format(d);
+System.out.println(s);
+
+#######################################
+
+
+//Formatacao de moeda no Padrão Br
+Locale l = new Locale("pt", "BR");
+NumberFormat nf = NumberFormat.getCurrencyInstance(1);
+String s = nf.format(1000.5)
+System.out.println(s);
+
+
+//Formatacao de moeda no Padrão Italiano
+Locale l = new Locale("it", "IT");
+NumberFormat nf = NumberFormat.getCurrencyInstance(1);
+String s = nf.format(1000.5)
+System.out.println(s);
+
+#################################
+
+  //Calculo dos fretes
+
+                if (destino.equals("Russia")){
+                    //convertendo o valor da strinf o editText para double
+                    Double res = new Double(p.getText().toString());
+                    //caculando
+                    result = (2 + res);
+                    //convertendo o double em string
+                    String total2 = Double.toString(result);
+                    //mostrando o restultado na textview
+                    t.setText(total2);
+
+
+                }
+                if (destino.equals("Polonia")){
+
+                    t.setText(destino);
+
+                }
+				
+#############################################
