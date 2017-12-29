@@ -1,0 +1,259 @@
+Monitoring
+
+vmstat -S M 
+vmstat -a 
+free -m ; sync
+free -m
+
+
+
+#Use nestat to dislay ports
+netstat -i
+
+#Show details tx/rx packets
+netstat -s
+
+
+ netstat -a  (-a Show all)
+ netstat -nr   (-n Numeric)
+ netstat -nalt   (-r Routes)
+  netstat -lx   (-l Listening)
+(-t tcp)
+(x socket)
+
+#Dislay counters relating to firewall rules
+
+iptables -nvL
+
+#Use watch to see in real time and -d to highlighting changes last refresh
+
+watch -d -n 2 iptables -nvL
+
+
+Tools within sysstat
+
+iostat = GeneratesCPU $ disk IO infomation
+mpstat = More detailed CPU information
+idstat = Dislay process ID information
+cifsiostat = Details about SAMBA share IO
+nfsiostat = Details about NFS export IO
+sar = Collects andDisplays system activities
+
+SAR uses
+
+##Display load averages 3 times with a 1 second interval
+ sar -q 1 3
+ 
+ #Display load averages from day 15 of thecurrent month
+ 
+ sar -q -f /var/log/sa/sa15 (CentOS)
+ sar -q -f /var/log/sysstat/sa15 (Ubuntu)
+ 
+ #Processes created er second and context switches per see
+ sar -W
+ 
+ #Networkinterfaces statistics
+ #sar -n DEV
+ 
+ #Overall IO activity
+ sar -b
+ 
+ #Display load averages from 10 to 11 on the current day
+ sar -q -s 10:00:00 -e 11:00:00
+ 
+ 
+ 
+ #Using ip command
+ 
+ #IP addresses
+ ip address show
+ 
+ #Show routes
+ ip route show
+ 
+ #Show neighbors
+ ip neighbor show
+ 
+ #Set net interfacer up
+ ip link set eth0 up
+ 
+ #Add ip address to a network interface
+ ip address add 192.168.0.5/24 dev eth0
+
+ 
+ 
+ #ROUTERS
+ 
+  route OR ip r s $ route -n 
+  
+  
+  #Use strace command    -  yum install strace
+  strace route 2>&1 | grep network
+  strace route -n 2>&1 | grep network
+  
+  
+  #FLAGS
+  
+  U (router is up)
+  H (target is a host)
+  G (use gateway)
+  R (reinstate route for dynamic routing)
+  D (dynamically installed by daemon or directed)
+  M (modified from routing)
+  A (installedby addrconf)
+  C (cache entry)
+  ! (reject route)
+ 
+#Add route to privatenetwork 
+ route add -net 192.168.3.0 \ netmask 255.255.255.0 gw 192.168.0.1
+ 
+ 
+ # Block Access to a single Host
+ route add -host 192.168.1.20 reject
+ 
+ 
+ 
+ -----
+ 
+ 
+ Persisting static routers - Ubuntu
+ 
+ /etc/network/interfaces auto eth0 
+ 
+allow-hotplug eth0 iface eth0
+ inet static address 192.168.0.5 
+netmask 255.255.255.0
+ post-up route add -net 172.16.0.0 netmask 255.255.0.0 gw 192.168.0.3
+
+ 
+ 
+ 
+ Persisting static routers - centos
+ 
+ /etc/sysconfig/network-scripts/route-eth0
+ default 192.168.0.1 dev eth0
+ 10.10.10.0/24 via 192.168.0.3 dev eth0 
+ 172.16.1.0/16 via 192.168.0.1 dev eth0 
+ 
+ 
+----
+
+
+# WIFI
+/etc/wpa_supplicant/wpa_supplicant.conf
+
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+network={
+ssid=“DIY-WLAN"
+psk=“secret-pre-shared-key"
+proto=RSN
+key_mgmt=WPA-PSK
+pairwise=CCMP TKIP
+}
+
+
+#Searching info 
+
+iwlist wlan0 scan
+
+
+iwconfig wlan0
+
+cat /proc/net/wireless
+
+
+#Listing Wifi network with nmcli
+nmcli device wifi list
+
+#We can add  new connection
+nmcli connection add con-name wired-home \ ifname enp9s0 type ethernet ip4 192.168.0.8/24 gw4 192.168.0.1 
+
+
+#Modify DNS
+nmcli connection modify wired-home ipv4.dns “192.168.0.3 8.8.8.8”
+
+#Display the connection
+nmcli -p connection show wired-home
+
+
+
+-------------
+
+
+#Capturing network traffi with tcpdump
+
+#Display all packets captured on eth0
+sudo tcpdump -i eth0
+
+#Only captured 5 packets
+sudo tcpdump -c 5 -i eth0
+
+#Don't capture SSH traffic useful when remoting into the host
+sudo tcpdump -i eth0 not port 22
+
+
+
+
+---------
+#Listing connections
+
+lsof -i 
+lsof -iTCP:22
+lsof -i@192.168.40.3
+
+
+----
+
+#Testing connections
+
+nc 10.1.1.1 80
+
+#trasfer files using nc 
+
+#server
+
+nc -l 8888
+
+#client
+
+tar -czf h.tgz /etc/hosts
+nc server_ip  8888 < h.tgz
+
+
+-----
+
+
+#nmap
+
+#Display local posts and routes
+nmap --iflist
+
+nmap -sT 10.1.1.1
+nmap -sS
+
+#version of the server hosting a port
+nmap -sV
+
+
+#OSDetection
+
+nmap -A 10.1.1.1
+
+
+#Working with HTTP
+nmap -p80 192.168.0.4
+nmap -p80 --script http-title 192.168.0.4
+nmap -p80 --script http-enum 192.168.0.4
+nmap -p80 --script http-enum \ --script-args http-enum.displayall 192.168.0.4
+
+
+---
+#info about hostname
+
+hostnamectl
+
+---
+
+
+
