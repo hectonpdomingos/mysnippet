@@ -1,0 +1,41 @@
+apt-get install -y xfsprogs
+mkfs.xfs -i size=512 /dev/sdb
+mkdir -p /data/glusterfs/var-www/brick02
+
+#FSTAB
+#Cloud calls file system storage bricks
+echo "/dev/sdb /data/glusterfs/var-www/brick01 xfs defaults 0 0" >> /etc/fstab
+
+mount -a
+
+#Add in hosts all IP and hostnames of the network
+
+
+#You can install glusterfs now.
+
+#check the status
+ps -ef | grep gluster
+
+#you need to run just in one node (nde 1 in this case)
+gluster peer probe glusternode01
+
+gluster peer status
+
+#create o volume
+gluster volume create var-www replica 2 transport tcp Node1GlusterFS:/data/glusterfs/var-www/brick01/brick Node2GlusterFS:/data/glusterfs/var-www/brick02/brick
+
+
+gluster volume start var-www
+
+gluster volume info
+
+#Add on fstab the gluster volume
+glusternode01:/var-www /var/www glusterfs defaults,_netdev, fetch-attempts=5 0 0
+
+
+
+
+
+#XtraDB cluster for Mysql
+
+
