@@ -1,0 +1,122 @@
+#!/bin/bash
+#Hecton Paulino Domingos - Script to depploy my GlusterFS lab
+# -lname [local name] -ipl [local IP] -net [network] -ga [gateway] -rn [remote name]
+#-ipn [Remote node IP]
+
+
+
+lnome="Node1GlusterFS"
+iplocal="192.168.88.51"
+network="255.255.255.0"
+gateway="192.168.88.1"
+rname="Node2GlusterFS"
+iprnode="192.168.88.52"
+
+
+
+local_node(){
+
+echo "lnome = '${lnome}'"
+echo "iplocal = '${iplocal}'"
+echo "network = '${network}'"
+echo "gateway    = '${gateway}'"
+echo "rname = '${rname}'"
+echo "iprnode = '${iprnode}'"
+
+#Hostname
+
+echo "'${lnome}'" > /etc/hostname
+
+#Configurando a rede
+
+echo "# The loopback network interface" > /etc/network/interfaces
+echo "auto lo">> /etc/network/interfaces
+echo "iface lo inet loopback">> /etc/network/interfaces
+echo " " >> /etc/network/interfaces
+echo "# The primary network interface" >> /etc/network/interfaces
+echo "allow-hotplug eth0" >> /etc/network/interfaces
+#echo "auto eth0" >> /etc/network/interfaces
+echo "iface eth0 inet static" >>  /etc/network/interfaces
+echo "address '${iplocal}'" >>  /etc/network/interfaces
+echo "network '${network}'" >> /etc/network/interfaces
+echo "gateway '${gateway}'" >> /etc/network/interfaces
+
+#Nodes
+echo "'${iplocal}' '${lnome}'" >> /etc/hosts
+echo "'${iprnode}' '${rname}'" >> /etc/hosts
+
+#Renice the network service
+service networking stop
+service networking start
+
+
+#Install the latest GlusterFS version
+wget -O - http://download.gluster.org/pub/gluster/glusterfs/3.10/rsa.pub | apt-key add -
+echo "deb http://download.gluster.org/pub/gluster/glusterfs/3.10/LATEST/Debian/jessie/apt jessie main" > /etc/apt/sources.list.d/gluster.list 
+
+
+#Install apt-transport-https
+apt-get -y install apt-transport-https
+
+#Update the system
+apt-get -y update
+
+#Install glusterfs-server
+apt-get -y install glusterfs-server
+
+#Bloquear atualiações
+#apt-mark hold glusterfs*
+
+
+#Partition preparation
+#Installing fsprogs
+
+apt-get install -y xfsprogs
+mkfs.xfs -i size=512 /dev/sdb
+mkdir -p /data/glusterfs/var-www/brick01
+
+#Add mount point on fstab 
+echo "/dev/sdb /data/glusterfs/var-www/brick01 xfs defaults 0 0" >> /etc/fstab
+echo "'${lnome}':/var-www /var/www glusterfs defaults,_netdev,fetch-attempts=5 0 0"  >> /etc/fstab
+
+#Mount all points
+mount -a
+
+#Only in one node
+gluster peer probe Node1GlusterFS
+
+#informação
+systemctl status glusterfs-server.service
+
+#start service 
+
+systemctl start glusterfs-server.service
+
+#on boot
+systemctl enable glusterfs-server.service 
+
+# configurando a pool
+gluster peer probe gfs02
+
+}
+
+
+remote_node(){
+
+echo "executando conf no segundo node"
+
+}
+
+
+while getopts 'ln:ipl:net:ga:rn:ipn:f' opt; do
+    case $opt in
+        ln)  lnome="$OPTARG" ;;
+        ipl)  iplocal="$OPTARG"    ;;
+		net)  network="$OPTARG" ;;
+        ga)  gateway="$OPTARG"    ;;
+		rn) rname="$OPTARG"    ;;
+		ipn) iprnode="$OPTARG"    ;;
+		f) remote_node;
+        *)  exit 1            ;;
+    esac
+done
